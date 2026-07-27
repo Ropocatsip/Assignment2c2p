@@ -7,15 +7,16 @@ namespace Assignment1.Services;
 public class PaymentService : IPaymentService
 {
     private readonly IPaymentRepository _paymentRepository;
+    private readonly IEncryptionService _encryptionService;
 
-    public PaymentService(IPaymentRepository paymentRepository)
+    public PaymentService(IPaymentRepository paymentRepository, IEncryptionService encryptionService)
     {
         _paymentRepository = paymentRepository;
+        _encryptionService = encryptionService;
     }
 
     public PaymentResponse Pay(PaymentRequest request)
     {
-        // Unique UUID for transaction_id
         string transactionId = Guid.NewGuid().ToString();
 
         // Unique mock reference number from the "bank"
@@ -40,7 +41,18 @@ public class PaymentService : IPaymentService
             Amount = request.Amount
         };
 
-        _paymentRepository.SaveTransaction(request, response);
+        var encryptedRequest = new PaymentRequest
+        {
+            OrderNumber = request.OrderNumber,
+            CardNumber = _encryptionService.Encrypt(request.CardNumber),
+            ExpiryDate = request.ExpiryDate,
+            Cvv = _encryptionService.Encrypt(request.Cvv),
+            Currency = request.Currency,
+            CardholderName = request.CardholderName,
+            Email = request.Email,
+            Amount = request.Amount
+        };
+        _paymentRepository.SaveTransaction(encryptedRequest, response);
 
         return response;
     }
