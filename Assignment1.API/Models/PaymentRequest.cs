@@ -34,7 +34,7 @@ public class PaymentRequest
     [JsonPropertyName("currency")]
     public string Currency { get; set; } = string.Empty;
 
-    /// <example>John Doe</example>
+    /// <example>Nudthaya K.</example>
     [Required]
     [JsonPropertyName("cardholder_name")]
     public string CardholderName { get; set; } = string.Empty;

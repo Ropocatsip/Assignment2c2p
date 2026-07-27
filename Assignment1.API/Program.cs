@@ -1,4 +1,5 @@
 using Assignment1.Controllers;
+using Assignment1.Middlewares;
 using Assignment1.Repositories;
 using Assignment1.Services;
 
@@ -28,6 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.MapOpenApi();
 }
+
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 app.UseHttpsRedirection();
 
