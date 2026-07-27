@@ -2,6 +2,7 @@ using Assignment1.Controllers;
 using Assignment1.Middlewares;
 using Assignment1.Repositories;
 using Assignment1.Services;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,22 @@ builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+    // Configure Swagger UI Authorize button for X-Api-Key header
+    var apiKeyScheme = new OpenApiSecurityScheme
+    {
+        Description = "API Key authentication using X-Api-Key header (e.g. 1234)",
+        Type = SecuritySchemeType.ApiKey,
+        Name = "X-Api-Key",
+        In = ParameterLocation.Header
+    };
+
+    options.AddSecurityDefinition("ApiKey", apiKeyScheme);
+
+    options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+    {
+        { new OpenApiSecuritySchemeReference("ApiKey"), new List<string>() }
+    });
 });
 
 builder.Services.AddControllers();
@@ -32,6 +49,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.UseHttpsRedirection();
 
