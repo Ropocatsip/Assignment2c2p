@@ -18,7 +18,14 @@ public class PaymentController : ControllerBase
     [HttpPost("pay")]
     public ActionResult<PaymentResponse> Pay([FromBody] PaymentRequest request)
     {
-        var response = _paymentService.Pay(request);
-        return Ok(response);
+        try
+        {
+            var response = _paymentService.Pay(request);
+            return Ok(response);
+        }
+        catch (BadHttpRequestException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

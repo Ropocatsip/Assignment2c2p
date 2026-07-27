@@ -34,4 +34,19 @@ public class PaymentRepository : IPaymentRepository
             throw new InvalidOperationException($"Failed to save transaction to database: {ex.Message}", ex);
         }
     }
+
+    public bool HasApprovedTransaction(string orderNumber)
+    {
+        try
+        {
+            return _transactionCollection
+                .Find(t => t.Request.OrderNumber == orderNumber && t.Response.Status == "APPROVED")
+                .Any();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking existing approved transaction for order {OrderNumber}", orderNumber);
+            throw new InvalidOperationException($"Failed to query database for order status: {ex.Message}", ex);
+        }
+    }
 }

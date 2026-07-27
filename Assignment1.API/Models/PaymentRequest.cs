@@ -49,6 +49,7 @@ public class PaymentRequest
     /// <example>100.00</example>
     [Required]
     [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
+    [TwoDecimalPlaces(ErrorMessage = "Amount must have at most 2 decimal places.")]
     [JsonPropertyName("amount")]
     public decimal Amount { get; set; }
 }
@@ -86,6 +87,31 @@ public class FutureExpiryDateAttribute : ValidationAttribute
             return new ValidationResult(ErrorMessage);
         }
 
+        return ValidationResult.Success;
+    }
+}
+
+public class TwoDecimalPlacesAttribute : ValidationAttribute
+{
+    public TwoDecimalPlacesAttribute()
+    {
+        ErrorMessage = "Amount must have at most 2 decimal places.";
+    }
+
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        if (value is null)
+        {
+            return ValidationResult.Success;
+        }
+
+        if (value is decimal amount)
+        {
+            if (amount != Math.Round(amount, 2))
+            {
+                return new ValidationResult(ErrorMessage);
+            }
+        }
         return ValidationResult.Success;
     }
 }
