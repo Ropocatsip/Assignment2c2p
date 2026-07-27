@@ -3,6 +3,7 @@ using Assignment1.Middlewares;
 using Assignment1.Repositories;
 using Assignment1.Services;
 using Microsoft.OpenApi;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,19 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddControllers();
+
+var mongoConnectionString = builder.Configuration["MONGODBURI"] 
+                            ?? builder.Configuration.GetConnectionString("MongoDb") 
+                            ?? "mongodb://localhost:27017";
+
+Console.WriteLine("DEBUG mongouri: " + mongoConnectionString);
+var mongoUrl = new MongoUrl(mongoConnectionString);
+var mongoClient = new MongoClient(mongoUrl);
+var databaseName = !string.IsNullOrEmpty(mongoUrl.DatabaseName) ? mongoUrl.DatabaseName : "assignment";
+var mongoDatabase = mongoClient.GetDatabase(databaseName);
+
+builder.Services.AddSingleton<IMongoClient>(mongoClient);
+builder.Services.AddSingleton<IMongoDatabase>(mongoDatabase);
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
