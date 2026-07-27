@@ -19,6 +19,7 @@ public class PaymentRequest
     /// <example>12/28</example>
     [Required]
     [RegularExpression(@"^(0[1-9]|1[0-2])\/\d{2}$", ErrorMessage = "Expiry date must be in MM/YY format.")]
+    [FutureExpiryDate(ErrorMessage = "Expiry date must be in the future.")]
     [JsonPropertyName("expiry_date")]
     public string ExpiryDate { get; set; } = string.Empty;
 
@@ -50,4 +51,41 @@ public class PaymentRequest
     [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
     [JsonPropertyName("amount")]
     public decimal Amount { get; set; }
+}
+
+public class FutureExpiryDateAttribute : ValidationAttribute
+{
+    public FutureExpiryDateAttribute()
+    {
+        ErrorMessage = "Expiry date must be in the future.";
+    }
+
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        if (value is not string expiryString || string.IsNullOrWhiteSpace(expiryString))
+        {
+            return ValidationResult.Success;
+        }
+
+        var parts = expiryString.Split('/');
+        if (parts.Length != 2 || !int.TryParse(parts[0], out int month) || !int.TryParse(parts[1], out int yearTwoDigits))
+        {
+            return ValidationResult.Success;
+        }
+
+        if (month < 1 || month > 12)
+        {
+            return ValidationResult.Success;
+        }
+
+        int fullYear = 2000 + yearTwoDigits;
+        var lastDayOfMonth = new DateTime(fullYear, month, DateTime.DaysInMonth(fullYear, month), 23, 59, 59, DateTimeKind.Utc);
+
+        if (lastDayOfMonth < DateTime.UtcNow)
+        {
+            return new ValidationResult(ErrorMessage);
+        }
+
+        return ValidationResult.Success;
+    }
 }

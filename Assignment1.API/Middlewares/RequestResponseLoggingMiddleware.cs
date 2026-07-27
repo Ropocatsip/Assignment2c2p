@@ -81,11 +81,7 @@ public class RequestResponseLoggingMiddleware
     private static string MaskSensitiveData(string body)
     {
         if (string.IsNullOrWhiteSpace(body)) return body;
-
-        // Mask credit card numbers (keep last 4 digits)
         body = Regex.Replace(body, @"(""(?:card_number|cardNumber)""\s*:\s*"")\d{12}(\d{4}"")", "$1************$2");
-
-        // Mask CVV
         body = Regex.Replace(body, @"(""(?:cvv)""\s*:\s*"")[^""]+("")", "$1***$2");
 
         return body;
