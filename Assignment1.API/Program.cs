@@ -39,7 +39,6 @@ var mongoConnectionString = builder.Configuration["MONGODBURI"]
                             ?? builder.Configuration.GetConnectionString("MongoDb") 
                             ?? "mongodb://localhost:27017";
 
-Console.WriteLine("DEBUG mongouri: " + mongoConnectionString);
 var mongoUrl = new MongoUrl(mongoConnectionString);
 var mongoClient = new MongoClient(mongoUrl);
 var databaseName = !string.IsNullOrEmpty(mongoUrl.DatabaseName) ? mongoUrl.DatabaseName : "assignment";

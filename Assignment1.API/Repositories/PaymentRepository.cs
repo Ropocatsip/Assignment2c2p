@@ -6,21 +6,32 @@ namespace Assignment1.Repositories;
 public class PaymentRepository : IPaymentRepository
 {
     private readonly IMongoCollection<PaymentTransaction> _transactionCollection;
+    private readonly ILogger<PaymentRepository> _logger;
 
-    public PaymentRepository(IMongoDatabase database)
+    public PaymentRepository(IMongoDatabase database, ILogger<PaymentRepository> logger)
     {
         _transactionCollection = database.GetCollection<PaymentTransaction>("transaction");
+        _logger = logger;
     }
 
     public void SaveTransaction(PaymentRequest request, PaymentResponse response)
     {
-        var transaction = new PaymentTransaction
+        try
         {
-            Request = request,
-            Response = response,
-            CreatedAt = DateTime.UtcNow
-        };
+            var transaction = new PaymentTransaction
+            {
+                Request = request,
+                Response = response,
+                CreatedAt = DateTime.UtcNow
+            };
 
-        _transactionCollection.InsertOne(transaction);
+            _transactionCollection.InsertOne(transaction);
+            _logger.LogInformation("Successfully saved transaction {TransactionId} to MongoDB.", response.TransactionId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while inserting transaction {TransactionId} into MongoDB.", response.TransactionId);
+            throw new InvalidOperationException($"Failed to save transaction to database: {ex.Message}", ex);
+        }
     }
 }
