@@ -4,6 +4,7 @@ namespace Assignment1.Repositories;
 
 public interface IPaymentRepository
 {
-    void SaveTransaction(PaymentRequest request, PaymentResponse response);
-    bool HasApprovedTransaction(string orderNumber);
+    Task SaveTransactionAsync(PaymentRequest request, PaymentResponse response, CancellationToken cancellationToken = default);
+    Task<bool> HasApprovedTransactionAsync(string orderNumber, CancellationToken cancellationToken = default);
 }
+

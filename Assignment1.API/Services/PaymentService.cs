@@ -15,9 +15,9 @@ public class PaymentService : IPaymentService
         _encryptionService = encryptionService;
     }
 
-    public PaymentResponse Pay(PaymentRequest request)
+    public async Task<PaymentResponse> PayAsync(PaymentRequest request, CancellationToken cancellationToken = default)
     {
-        if (_paymentRepository.HasApprovedTransaction(request.OrderNumber))
+        if (await _paymentRepository.HasApprovedTransactionAsync(request.OrderNumber, cancellationToken))
         {
             throw new BadHttpRequestException($"Order number '{request.OrderNumber}' has already been paid and approved.");
         }
@@ -51,7 +51,8 @@ public class PaymentService : IPaymentService
             Amount = request.Amount
         };
 
-        _paymentRepository.SaveTransaction(encryptedRequest, response);
+        await _paymentRepository.SaveTransactionAsync(encryptedRequest, response, cancellationToken);
         return response;
     }
 }
+

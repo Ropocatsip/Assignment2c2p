@@ -4,5 +4,6 @@ namespace Assignment1.Services;
 
 public interface IPaymentService
 {
-    PaymentResponse Pay(PaymentRequest request);
+    Task<PaymentResponse> PayAsync(PaymentRequest request, CancellationToken cancellationToken = default);
 }
+

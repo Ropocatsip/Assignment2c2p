@@ -16,11 +16,11 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost("pay")]
-    public ActionResult<PaymentResponse> Pay([FromBody] PaymentRequest request)
+    public async Task<ActionResult<PaymentResponse>> Pay([FromBody] PaymentRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var response = _paymentService.Pay(request);
+            var response = await _paymentService.PayAsync(request, cancellationToken);
             return Ok(response);
         }
         catch (BadHttpRequestException ex)
@@ -29,3 +29,4 @@ public class PaymentController : ControllerBase
         }
     }
 }
+

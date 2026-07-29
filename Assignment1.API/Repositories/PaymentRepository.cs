@@ -14,7 +14,7 @@ public class PaymentRepository : IPaymentRepository
         _logger = logger;
     }
 
-    public void SaveTransaction(PaymentRequest request, PaymentResponse response)
+    public async Task SaveTransactionAsync(PaymentRequest request, PaymentResponse response, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -25,7 +25,7 @@ public class PaymentRepository : IPaymentRepository
                 CreatedAt = DateTime.UtcNow
             };
 
-            _transactionCollection.InsertOne(transaction);
+            await _transactionCollection.InsertOneAsync(transaction, cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully saved transaction {TransactionId} to MongoDB.", response.TransactionId);
         }
         catch (Exception ex)
@@ -35,13 +35,13 @@ public class PaymentRepository : IPaymentRepository
         }
     }
 
-    public bool HasApprovedTransaction(string orderNumber)
+    public async Task<bool> HasApprovedTransactionAsync(string orderNumber, CancellationToken cancellationToken = default)
     {
         try
         {
-            return _transactionCollection
+            return await _transactionCollection
                 .Find(t => t.Request.OrderNumber == orderNumber && t.Response.Status == "APPROVED")
-                .Any();
+                .AnyAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -50,3 +50,4 @@ public class PaymentRepository : IPaymentRepository
         }
     }
 }
+
