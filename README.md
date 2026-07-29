@@ -71,9 +71,3 @@ dotnet test Assignment2.TEST
 ```
 
 ---
-
-## 🧪 Running All Solution Tests
-To run unit tests across all projects:
-```bash
-dotnet test
-```
